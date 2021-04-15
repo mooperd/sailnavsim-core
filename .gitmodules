@@ -1,3 +1,6 @@
 [submodule "libproteus"]
 	path = libproteus
 	url = https://github.com/ls4096/libproteus
+[submodule "sailnavsim-web-python"]
+	path = sailnavsim-web-python
+	url = https://github.com/mooperd/sailnavsim-web-python
