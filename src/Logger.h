@@ -32,8 +32,8 @@ typedef struct
 	// Time
 	time_t time;
 
-	// Boat name
-	char* boatName;
+	// Boat ID
+	long long int boatId;
 
 	// Boat position
 	proteus_GeoPos boatPos;
@@ -96,7 +96,7 @@ typedef struct
 } CelestialSightEntry;
 
 int Logger_init(const char* csvLoggerDir, const char* sqliteDbFilename);
-void Logger_fillLogEntry(Boat* boat, const char* name, time_t t, bool reportVisible, LogEntry* log);
+void Logger_fillLogEntry(Boat* boat, time_t t, bool reportVisible, LogEntry* log);
 void Logger_writeLogs(LogEntry* logEntries, unsigned int lCount, CelestialSightEntry* csEntries, unsigned int csCount);
 
 #endif // _Logger_h_
