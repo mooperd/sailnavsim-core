@@ -98,8 +98,8 @@ static int startSql(const char* sqliteDbFilename)
 		fclose(fdb);
 	}
 
-	static const char* SELECT_BOAT_STMT_STR = "SELECT name, race, desiredCourse, started, boatType, boatFlags FROM Boat WHERE isActive = 1;";
-	static const char* SELECT_BOATLOG_STMT_STR = "SELECT lat, lon, courseWater, speedWater, boatStatus, boatLocation, distanceTravelled, damage FROM BoatLog WHERE boatName=? ORDER BY time DESC LIMIT 1;";
+	static const char* SELECT_BOAT_STMT_STR = "SELECT name, id, race_id, desiredCourse, started, boatType, boatFlags FROM Boat WHERE isActive = 1;";
+	static const char* SELECT_BOATLOG_STMT_STR = "SELECT lat, lon, courseWater, speedWater, boatStatus, boatLocation, distanceTravelled, damage FROM BoatLog WHERE boat_id=? ORDER BY time DESC LIMIT 1;";
 
 	int src;
 
@@ -166,11 +166,12 @@ static BoatInitEntry* getNextSql()
 		else if (src == SQLITE_ROW)
 		{
 			const char* boatName = (const char*) sqlite3_column_text(_sqlStmtBoat, 0);
-			const char* race = (const char*) sqlite3_column_text(_sqlStmtBoat, 1);
-			double desiredCourse = sqlite3_column_double(_sqlStmtBoat, 2);
-			int started = sqlite3_column_double(_sqlStmtBoat, 3);
-			int boatType = sqlite3_column_double(_sqlStmtBoat, 4);
-			int boatFlags = sqlite3_column_double(_sqlStmtBoat, 5);
+			const long long int boatId = sqlite3_column_int64(_sqlStmtBoat, 1);
+			const long long int raceId = sqlite3_column_int64(_sqlStmtBoat, 2);
+			double desiredCourse = sqlite3_column_double(_sqlStmtBoat, 3);
+			int started = sqlite3_column_double(_sqlStmtBoat, 4);
+			int boatType = sqlite3_column_double(_sqlStmtBoat, 5);
+			int boatFlags = sqlite3_column_double(_sqlStmtBoat, 6);
 
 			src = sqlite3_reset(_sqlStmtBoatLog);
 			if (src != SQLITE_OK)
@@ -179,10 +180,10 @@ static BoatInitEntry* getNextSql()
 				continue;
 			}
 
-			src = sqlite3_bind_text(_sqlStmtBoatLog, 1, boatName, -1, 0);
+			src = sqlite3_bind_int64(_sqlStmtBoatLog, 1, boatId);
 			if (src != SQLITE_OK)
 			{
-				ERRLOG1("Failed to bind boat name to BoatLog statement! sqlite rc=%d", src);
+				ERRLOG1("Failed to bind boatId to BoatLog statement! sqlite rc=%d", src);
 				continue;
 			}
 
@@ -202,7 +203,7 @@ static BoatInitEntry* getNextSql()
 
 				BoatInitEntry* entry = (BoatInitEntry*) malloc(sizeof(BoatInitEntry));
 
-				Boat* boat = Boat_new(lat, lon, boatType, boatFlags);
+				Boat* boat = Boat_new(boatId, lat, lon, boatType, boatFlags);
 
 				boat->v.angle = course;
 				boat->v.mag = speed;
@@ -230,7 +231,7 @@ static BoatInitEntry* getNextSql()
 				BoatInitEntry* entry = 0;
 
 				sqlite3_stmt* stmt;
-				static const char* SELECT_FROM_BOATRACE_STMT_STR = "SELECT startLat, startLon FROM BoatRace WHERE name=?;";
+				static const char* SELECT_FROM_BOATRACE_STMT_STR = "SELECT startLat, startLon FROM BoatRace WHERE id=?;";
 
 				src = sqlite3_prepare_v2(_sql, SELECT_FROM_BOATRACE_STMT_STR, strlen(SELECT_FROM_BOATRACE_STMT_STR) + 1, &stmt, 0);
 				if (SQLITE_OK != src)
@@ -239,10 +240,10 @@ static BoatInitEntry* getNextSql()
 					continue;
 				}
 
-				src = sqlite3_bind_text(stmt, 1, race, -1, 0);
+				src = sqlite3_bind_int64(stmt, 1, raceId);
 				if (SQLITE_OK != src)
 				{
-					ERRLOG1("Failed to bind race value to statement! sqlite rc=%d", src);
+					ERRLOG1("Failed to bind race ID to statement! sqlite rc=%d", src);
 					goto cleanup;
 				}
 
@@ -258,7 +259,7 @@ static BoatInitEntry* getNextSql()
 
 				entry = (BoatInitEntry*) malloc(sizeof(BoatInitEntry));
 
-				Boat* boat = Boat_new(lat, lon, boatType, boatFlags);
+				Boat* boat = Boat_new(boatId, lat, lon, boatType, boatFlags);
 
 				entry->boat = boat;
 				entry->name = strdup(boatName);
@@ -319,6 +320,8 @@ static BoatInitEntry* getNextFile()
 	double lat, lon;
 	int type, flags;
 
+	long long int boatId = 0;
+
 	if (fgets(buf, BOAT_INIT_ENTRY_BUF_SIZE, _fp) == buf)
 	{
 		if (readBoatInitData(buf, &name, &lat, &lon, &type, &flags) != 0)
@@ -328,7 +331,7 @@ static BoatInitEntry* getNextFile()
 
 		BoatInitEntry* entry = (BoatInitEntry*) malloc(sizeof(BoatInitEntry));
 
-		Boat* boat = Boat_new(lat, lon, type, flags);
+		Boat* boat = Boat_new(boatId++, lat, lon, type, flags);
 
 		entry->boat = boat;
 		entry->name = name;

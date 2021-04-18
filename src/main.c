@@ -81,7 +81,7 @@
 #define PERF_TEST_MAX_BOAT_COUNT (204800)
 
 
-static const char* VERSION_STRING = "SailNavSim version 1.9.1 (" __DATE__ " " __TIME__ ")";
+static const char* VERSION_STRING = "SailNavSim version 1.9.1-exp1 (" __DATE__ " " __TIME__ ")";
 
 
 static int parseArgs(int argc, char** argv);
@@ -301,7 +301,7 @@ int main(int argc, char** argv)
 						sights[ilog].obj = -1;
 					}
 
-					Logger_fillLogEntry(e->boat, e->name, curTime, isReportVisible, logEntries + ilog);
+					Logger_fillLogEntry(e->boat, curTime, isReportVisible, logEntries + ilog);
 
 					ilog++;
 				}
@@ -323,7 +323,7 @@ int main(int argc, char** argv)
 					if (sights[i].obj >= 0)
 					{
 						nextEntry->time = curTime;
-						nextEntry->boatName = logEntries[i].boatName; // Shallow copy of string suffices here, since csEntries has same lifetime as logEntries.
+						// nextEntry->boatName = logEntries[i].boatName; // Shallow copy of string suffices here, since csEntries has same lifetime as logEntries.
 						nextEntry->obj = sights[i].obj;
 						nextEntry->az = sights[i].coord.az;
 						nextEntry->alt = sights[i].coord.alt;
@@ -586,7 +586,7 @@ static void handleBoatRegistryCommand(Command* cmd)
 	{
 		case COMMAND_ACTION_ADD_BOAT:
 		{
-			Boat* boat = Boat_new(cmd->values[0].d, cmd->values[1].d, cmd->values[2].i, cmd->values[3].i);
+			Boat* boat = Boat_new(cmd->values[4].lli, cmd->values[0].d, cmd->values[1].d, cmd->values[2].i, cmd->values[3].i);
 			if (BoatRegistry_OK != BoatRegistry_add(boat, cmd->name))
 			{
 				free(boat);

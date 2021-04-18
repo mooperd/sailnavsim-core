@@ -71,18 +71,18 @@ static bool _init = false;
 
 static void* loggerThreadMain(void* arg);
 
-static void writeLogsCsv(const LogEntry* const logEntries, unsigned int lCount, const CelestialSightEntry* const csEntries, unsigned int csCount);
+// static void writeLogsCsv(const LogEntry* const logEntries, unsigned int lCount, const CelestialSightEntry* const csEntries, unsigned int csCount);
 static void writeLogsSql(const LogEntry* const logEntries, unsigned int lCount, const CelestialSightEntry* const csEntries, unsigned int csCount);
 
 static void writeLogsSqlBoatLogs(const LogEntry* const logEntries, unsigned int lCount);
-static void writeLogsSqlCelestialSights(const CelestialSightEntry* const csEntries, unsigned int csCount);
+// static void writeLogsSqlCelestialSights(const CelestialSightEntry* const csEntries, unsigned int csCount);
 
 
 static const char* _csvLoggerDir = 0;
 
 static sqlite3* _sql = 0;
 static sqlite3_stmt* _sqlInsertStmtBoatLog;
-static sqlite3_stmt* _sqlInsertStmtCelestialSight;
+// static sqlite3_stmt* _sqlInsertStmtCelestialSight;
 
 static int setupSql(const char* sqliteDbFilename);
 
@@ -143,7 +143,7 @@ int Logger_init(const char* csvLoggerDir, const char* sqliteDbFilename)
 	return 0;
 }
 
-void Logger_fillLogEntry(Boat* boat, const char* name, time_t t, bool reportVisible, LogEntry* log)
+void Logger_fillLogEntry(Boat* boat, time_t t, bool reportVisible, LogEntry* log)
 {
 	if (!_init)
 	{
@@ -164,7 +164,7 @@ void Logger_fillLogEntry(Boat* boat, const char* name, time_t t, bool reportVisi
 	const double compassMagDec = proteus_Compass_magdec(&boat->pos, t);
 
 	log->time = t;
-	log->boatName = strdup(name);
+	log->boatId = boat->boatId;
 	log->boatPos = boat->pos;
 	log->boatVecWater = boat->v;
 	log->boatVecGround = boat->vGround;
@@ -263,12 +263,7 @@ static void* loggerThreadMain(void* arg)
 			}
 
 			writeLogsSql(entries, lCount, cs, csCount);
-			writeLogsCsv(entries, lCount, cs, csCount);
-
-			for (int i = 0; i < lCount; i++)
-			{
-				free(entries[i].boatName);
-			}
+			// writeLogsCsv(entries, lCount, cs, csCount);
 
 			free(entries);
 			free(cs);
@@ -289,6 +284,7 @@ static void* loggerThreadMain(void* arg)
 	return 0;
 }
 
+/*
 static void writeLogsCsv(const LogEntry* const logEntries, unsigned int lCount, const CelestialSightEntry* const csEntries, unsigned int csCount)
 {
 	if (!_csvLoggerDir)
@@ -488,6 +484,7 @@ static void writeLogsCsv(const LogEntry* const logEntries, unsigned int lCount, 
 		fclose(f);
 	}
 }
+*/
 
 static void writeLogsSql(const LogEntry* const logEntries, unsigned int lCount, const CelestialSightEntry* const csEntries, unsigned int csCount)
 {
@@ -497,7 +494,7 @@ static void writeLogsSql(const LogEntry* const logEntries, unsigned int lCount, 
 	}
 
 	writeLogsSqlBoatLogs(logEntries, lCount);
-	writeLogsSqlCelestialSights(csEntries, csCount);
+	// writeLogsSqlCelestialSights(csEntries, csCount); // Disabled for now.
 }
 
 static void writeLogsSqlBoatLogs(const LogEntry* const logEntries, unsigned int lCount)
@@ -534,12 +531,6 @@ static void writeLogsSqlBoatLogs(const LogEntry* const logEntries, unsigned int 
 
 
 		int n = 0;
-
-		if (SQLITE_OK != (src = sqlite3_bind_text(_sqlInsertStmtBoatLog, ++n, log->boatName, -1, 0)))
-		{
-			ERRLOG1("Failed to bind boatName! sqlite rc=%d", src);
-			continue;
-		}
 
 		if (SQLITE_OK != (src = sqlite3_bind_int64(_sqlInsertStmtBoatLog, ++n, log->time)))
 		{
@@ -766,6 +757,12 @@ static void writeLogsSqlBoatLogs(const LogEntry* const logEntries, unsigned int 
 			continue;
 		}
 
+		if (SQLITE_OK != (src = sqlite3_bind_int64(_sqlInsertStmtBoatLog, ++n, log->boatId)))
+		{
+			ERRLOG1("Failed to bind boatId! sqlite rc=%d", src);
+			continue;
+		}
+
 
 		if (SQLITE_DONE != (src = sqlite3_step(_sqlInsertStmtBoatLog)))
 		{
@@ -791,6 +788,7 @@ static void writeLogsSqlBoatLogs(const LogEntry* const logEntries, unsigned int 
 	}
 }
 
+/*
 static void writeLogsSqlCelestialSights(const CelestialSightEntry* const csEntries, unsigned int csCount)
 {
 	if (csCount == 0)
@@ -892,6 +890,7 @@ static void writeLogsSqlCelestialSights(const CelestialSightEntry* const csEntri
 		ERRLOG("Committed celestial sights to DB.");
 	}
 }
+*/
 
 static int setupSql(const char* sqliteDbFilename)
 {
@@ -935,12 +934,15 @@ static int setupSql(const char* sqliteDbFilename)
 		return -1;
 	}
 
+	/*
+	 * Omitted for now.
 	static const char* CELESTIAL_SIGHT_INSERT_STMT_STR = "INSERT INTO CelestialSight VALUES (?,?,?,?,?,?);";
 	if (SQLITE_OK != (src = sqlite3_prepare_v2(_sql, CELESTIAL_SIGHT_INSERT_STMT_STR, strlen(CELESTIAL_SIGHT_INSERT_STMT_STR) + 1, &_sqlInsertStmtCelestialSight, 0)))
 	{
 		ERRLOG1("Failed to prepare CelestialSight insert statement. sqlite rc=%d", src);
 		return -1;
 	}
+	*/
 
 
 	return 0;

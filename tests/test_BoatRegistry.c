@@ -37,7 +37,7 @@ int test_BoatRegistry_runBasic()
 	EQUALS(boatCount, 0);
 
 	// Add boat
-	Boat* b = Boat_new(0.0, 0.0, 0, 0);
+	Boat* b = Boat_new(0, 0.0, 0.0, 0, 0);
 	rc = BoatRegistry_add(b, "TestBoat0");
 	EQUALS(BoatRegistry_OK, rc);
 
@@ -77,7 +77,7 @@ int test_BoatRegistry_runBasic()
 
 
 	// Add boat
-	b = Boat_new(0.1, 0.1, 0, 0);
+	b = Boat_new(0, 0.1, 0.1, 0, 0);
 	rc = BoatRegistry_add(b, "TestBoat0");
 	EQUALS(BoatRegistry_OK, rc);
 
@@ -87,7 +87,7 @@ int test_BoatRegistry_runBasic()
 	EQUALS(boatCount, 1);
 
 	// Try to add boat with same name
-	b = Boat_new(0.9, 0.9, 0, 0);
+	b = Boat_new(0, 0.9, 0.9, 0, 0);
 	rc = BoatRegistry_add(b, "TestBoat0");
 	EQUALS(BoatRegistry_EXISTS, rc);
 	free(b);
@@ -105,7 +105,7 @@ int test_BoatRegistry_runBasic()
 	EQUALS(0, b->boatFlags);
 
 	// Add new boat
-	b = Boat_new(1.0, 1.0, 0, 0);
+	b = Boat_new(0, 1.0, 1.0, 0, 0);
 	rc = BoatRegistry_add(b, "TestBoat1");
 	EQUALS(BoatRegistry_OK, rc);
 
@@ -201,7 +201,7 @@ int test_BoatRegistry_runLoad()
 		{
 			// Add random boat.
 
-			b = Boat_new(getBoatLatForR(r), getBoatLonForR(r), 0, 0);
+			b = Boat_new(0, getBoatLatForR(r), getBoatLonForR(r), 0, 0);
 
 			sprintf(boatName, "Boat%d", r);
 			rc = BoatRegistry_add(b, boatName);

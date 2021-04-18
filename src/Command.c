@@ -42,12 +42,13 @@ static const char* CMD_ACTION_STR_REMOVE_BOAT = "remove";
 
 #define CMD_VAL_NONE (0)
 #define CMD_VAL_INT (1)
-#define CMD_VAL_DOUBLE (2)
+#define CMD_VAL_LLINT (2)
+#define CMD_VAL_DOUBLE (3)
 
-static const uint8_t CMD_ACTION_VALS_NONE[COMMAND_MAX_ARG_COUNT] = { CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE };
+static const uint8_t CMD_ACTION_VALS_NONE[COMMAND_MAX_ARG_COUNT] = { CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE };
 
-static const uint8_t CMD_ACTION_COURSE_VALS[COMMAND_MAX_ARG_COUNT] = { CMD_VAL_INT, CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE };
-static const uint8_t CMD_ACTION_ADD_BOAT_VALS[COMMAND_MAX_ARG_COUNT] = { CMD_VAL_DOUBLE, CMD_VAL_DOUBLE, CMD_VAL_INT, CMD_VAL_INT };
+static const uint8_t CMD_ACTION_COURSE_VALS[COMMAND_MAX_ARG_COUNT] = { CMD_VAL_INT, CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE, CMD_VAL_NONE };
+static const uint8_t CMD_ACTION_ADD_BOAT_VALS[COMMAND_MAX_ARG_COUNT] = { CMD_VAL_DOUBLE, CMD_VAL_DOUBLE, CMD_VAL_INT, CMD_VAL_INT, CMD_VAL_LLINT };
 
 
 #define BOAT_TYPE_MAX_VALUE (9)
@@ -203,6 +204,7 @@ static int handleCmd(char* cmdStr)
 				break;
 
 			case CMD_VAL_INT:
+			case CMD_VAL_LLINT:
 			case CMD_VAL_DOUBLE:
 				if ((s = strtok_r(0, ",", &t)) == 0)
 				{
@@ -212,6 +214,10 @@ static int handleCmd(char* cmdStr)
 				if (vals[i] == CMD_VAL_INT)
 				{
 					cmd->values[i].i = strtol(s, 0, 10);
+				}
+				else if (vals[i] == CMD_VAL_LLINT)
+				{
+					cmd->values[i].lli = strtoll(s, 0, 10);
 				}
 				else
 				{
@@ -300,7 +306,8 @@ static bool areValuesValidForAction(int action, CommandValue values[COMMAND_MAX_
 			return (values[0].d > -90.0 && values[0].d < 90.0 &&
 					values[1].d >= -180.0 && values[1].d <= 180.0 &&
 					values[2].i >= 0 && values[2].i <= BOAT_TYPE_MAX_VALUE &&
-					values[3].i >= 0 && values[3].i <= BOAT_FLAGS_MAX_VALUE);
+					values[3].i >= 0 && values[3].i <= BOAT_FLAGS_MAX_VALUE &&
+					values[4].lli >= 0);
 		}
 	}
 

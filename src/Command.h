@@ -29,7 +29,7 @@
 #define COMMAND_ACTION_REMOVE_BOAT (5)
 
 
-#define COMMAND_MAX_ARG_COUNT (4)
+#define COMMAND_MAX_ARG_COUNT (5)
 
 
 typedef struct Command Command;
@@ -37,6 +37,7 @@ typedef struct Command Command;
 typedef union
 {
 	int i;
+	long long int lli;
 	double d;
 } CommandValue;
 

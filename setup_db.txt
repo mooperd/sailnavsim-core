@@ -1,59 +1,66 @@
 .open sailnavsim.sql
 
-CREATE TABLE Boat(
-	name TEXT NOT NULL UNIQUE,
-	race TEXT NOT NULL,
-	desiredCourse REAL NOT NULL,
-	started INTEGER NOT NULL,
-	boatType INTEGER NOT NULL,
-	isActive INTEGER NOT NULL,
-	boatFlags INTEGER NOT NULL
+CREATE TABLE IF NOT EXISTS "User" (
+	id INTEGER NOT NULL, 
+	name VARCHAR NOT NULL, 
+	email VARCHAR NOT NULL, 
+	PRIMARY KEY (id), 
+	UNIQUE (name), 
+	UNIQUE (email)
 );
-
-CREATE TABLE BoatRace(
-	name TEXT NOT NULL UNIQUE,
-	startLat REAL NOT NULL,
-	startLon REAL NOT NULL
+CREATE TABLE IF NOT EXISTS "BoatRace" (
+	id INTEGER NOT NULL, 
+	name VARCHAR NOT NULL, 
+	"startLat" FLOAT NOT NULL, 
+	"startLon" FLOAT NOT NULL, 
+	PRIMARY KEY (id), 
+	UNIQUE (name)
 );
-
-CREATE TABLE BoatLog(
-	boatName TEXT NOT NULL,
-	time INTEGER NOT NULL,
-	lat REAL NOT NULL,
-	lon REAL NOT NULL,
-	courseWater REAL NOT NULL,
-	speedWater REAL NOT NULL,
-	trackGround REAL NOT NULL,
-	speedGround REAL NOT NULL,
-	windDir REAL NOT NULL,
-	windSpeed REAL NOT NULL,
-	oceanCurrentDir REAL,
-	oceanCurrentSpeed REAL,
-	waterTemp REAL,
-	temp REAL NOT NULL,
-	dewpoint REAL NOT NULL,
-	pressure REAL NOT NULL,
-	cloud INTEGER NOT NULL,
-	visibility INTEGER NOT NULL,
-	precipRate REAL NOT NULL,
-	precipType INTEGER NOT NULL,
-	boatStatus INTEGER NOT NULL,
-	boatLocation INTEGER NOT NULL,
-	waterSalinity REAL,
-	oceanIce INTEGER,
-	distanceTravelled REAL NOT NULL,
-	damage REAL NOT NULL,
-	windGust REAL NOT NULL,
-	waveHeight REAL,
-	compassMagDec REAL NOT NULL,
-	invisibleLog INTEGER NOT NULL
+CREATE TABLE IF NOT EXISTS "Boat" (
+	id INTEGER NOT NULL, 
+	name TEXT NOT NULL, 
+	"desiredCourse" FLOAT NOT NULL, 
+	started INTEGER NOT NULL, 
+	"boatType" INTEGER NOT NULL, 
+	"isActive" INTEGER NOT NULL, 
+	"boatFlags" INTEGER NOT NULL, 
+	race_id INTEGER, 
+	user_id INTEGER, 
+	PRIMARY KEY (id), 
+	UNIQUE (name), 
+	FOREIGN KEY(race_id) REFERENCES "BoatRace" (id), 
+	FOREIGN KEY(user_id) REFERENCES "User" (id)
 );
-
-CREATE TABLE CelestialSight(
-	boatName TEXT NOT NULL,
-	time INTEGER NOT NULL,
-	obj INTEGER NOT NULL,
-	az REAL NOT NULL,
-	alt REAL NOT NULL,
-	compassMagDec REAL NOT NULL
+CREATE TABLE IF NOT EXISTS "BoatLog" (
+	time INTEGER NOT NULL, 
+	lat FLOAT NOT NULL, 
+	lon FLOAT NOT NULL, 
+	"courseWater" FLOAT NOT NULL, 
+	"speedWater" FLOAT NOT NULL, 
+	"trackGround" FLOAT NOT NULL, 
+	"speedGround" FLOAT NOT NULL, 
+	"windDir" FLOAT NOT NULL, 
+	"windSpeed" FLOAT NOT NULL, 
+	"oceanCurrentDir" FLOAT, 
+	"oceanCurrentSpeed" FLOAT, 
+	"waterTemp" FLOAT, 
+	"temp" FLOAT NOT NULL, 
+	dewpoint FLOAT NOT NULL, 
+	pressure FLOAT NOT NULL, 
+	cloud INTEGER NOT NULL, 
+	visibility INTEGER NOT NULL, 
+	"precipRate" FLOAT NOT NULL, 
+	"precipType" INTEGER NOT NULL, 
+	"boatStatus" INTEGER NOT NULL, 
+	"boatLocation" INTEGER NOT NULL, 
+	"waterSalinity" FLOAT, 
+	"oceanIce" INTEGER, 
+	"distanceTravelled" FLOAT NOT NULL, 
+	damage FLOAT NOT NULL, 
+	"windGust" FLOAT NOT NULL, 
+	"waveHeight" FLOAT, 
+	compassMagDec FLOAT NOT NULL,
+	invisibleLog INTEGER NOT NULL,
+	boat_id INTEGER,
+	FOREIGN KEY(boat_id) REFERENCES "Boat" (id)
 );

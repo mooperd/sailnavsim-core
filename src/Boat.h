@@ -30,6 +30,8 @@
 
 typedef struct
 {
+	long long int boatId;
+
 	proteus_GeoPos pos;
 	proteus_GeoVec v; // Always using true compass angles.
 	proteus_GeoVec vGround; // Always using true compass angles.
@@ -52,7 +54,7 @@ typedef struct
 
 int Boat_init();
 
-Boat* Boat_new(double lat, double lon, int boatType, int boatFlags);
+Boat* Boat_new(long long int boatId, double lat, double lon, int boatType, int boatFlags);
 void Boat_advance(Boat* b, time_t curTime);
 bool Boat_isHeadingTowardWater(const Boat* b, time_t curTime);
 
